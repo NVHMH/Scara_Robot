@@ -22,7 +22,7 @@ function varargout = scara_robot(varargin)
 
 % Edit the above text to modify the response to help scara_robot
 
-% Last Modified by GUIDE v2.5 29-Oct-2023 08:32:47
+% Last Modified by GUIDE v2.5 05-Nov-2023 10:53:37
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -76,12 +76,13 @@ base = [0; 0; 0];
 type = ['r', 'r', 'p', 'r']; % xoay, xoay, truot, xoay
 scara = arm(a, alpha, d, theta, base, type);
 scara = scara.set_joint_variable(1, deg2rad(get(handles.slider1, 'Value')));
-scara = scara.set_joint_variable(2, deg2rad(get(handles.slider2, 'Value')));
+scara = scara.set_joint_variable(2, deg2rad(-45));
+% scara = scara.set_joint_variable(2, deg2rad(get(handles.slider2, 'Value')));
 scara = scara.set_joint_variable(3, get(handles.slider3, 'Value'));
 scara = scara.set_joint_variable(4, deg2rad(get(handles.slider4, 'Value')));
 scara = scara.update();
 set_ee_params(scara, handles);
-scara.plot(handles.axes1);
+scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'));
 
 
 
@@ -111,10 +112,6 @@ function slider1_Callback(hObject, eventdata, handles)
 %%
 global scara
 scara = scara.set_joint_variable(1, deg2rad(get(handles.slider1, 'Value')));
-scara = scara.update();
-set_ee_params(scara, handles);
-scara.plot(handles.axes1);
-
 handles.theta1.String = get(handles.slider1,'Value'); 
 
 % --- Executes during object creation, after setting all properties.
@@ -142,9 +139,6 @@ function slider2_Callback(hObject, eventdata, handles)
 %%
 global scara
 scara = scara.set_joint_variable(2, deg2rad(get(handles.slider2, 'Value')));
-scara = scara.update();
-set_ee_params(scara, handles);
-scara.plot(handles.axes1);
 handles.theta2.String = get(handles.slider2,'Value'); 
 function slider2_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to slider2 (see GCBO)
@@ -169,9 +163,6 @@ function slider3_Callback(hObject, eventdata, handles)
 %%
 global scara
 scara = scara.set_joint_variable(3, get(handles.slider3, 'Value'));
-scara = scara.update();
-set_ee_params(scara, handles);
-scara.plot(handles.axes1);
 handles.d3.String = get(handles.slider3,'Value'); 
 % --- Executes during object creation, after setting all properties.
 function slider3_CreateFcn(hObject, eventdata, handles)
@@ -196,9 +187,6 @@ function slider4_Callback(hObject, eventdata, handles)
 %%
 global scara
 scara = scara.set_joint_variable(4, deg2rad(get(handles.slider4, 'Value')));
-scara = scara.update();
-set_ee_params(scara, handles);
-scara.plot(handles.axes1);
 handles.theta4.String = get(handles.slider4,'Value'); 
 % --- Executes during object creation, after setting all properties.
 function slider4_CreateFcn(hObject, eventdata, handles)
@@ -223,10 +211,6 @@ function theta1_Callback(hObject, eventdata, handles)
 %%
 global scara
 scara = scara.set_joint_variable(1, deg2rad(get(handles.slider1, 'Value')));
-scara = scara.update();
-set_ee_params(scara, handles);
-scara.plot(handles.axes1);
-
 set(handles.slider1,'Value',str2double(handles.theta1.String));
 
 % --- Executes during object creation, after setting all properties.
@@ -252,10 +236,6 @@ function theta2_Callback(hObject, eventdata, handles)
 %%
 global scara
 scara = scara.set_joint_variable(2, deg2rad(get(handles.slider2, 'Value')));
-scara = scara.update();
-set_ee_params(scara, handles);
-scara.plot(handles.axes1);
-
 set(handles.slider2,'Value',str2double(handles.theta2.String));
 
 % --- Executes during object creation, after setting all properties.
@@ -284,7 +264,7 @@ global scara
 scara = scara.set_joint_variable(3, deg2rad(get(handles.slider3, 'Value')));
 scara = scara.update();
 set_ee_params(scara, handles);
-scara.plot(handles.axes1);
+scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'));
 
 set(handles.slider3,'Value',str2double(handles.d3.String));
 
@@ -314,7 +294,7 @@ global scara
 scara = scara.set_joint_variable(4, deg2rad(get(handles.slider4, 'Value')));
 scara = scara.update();
 set_ee_params(scara, handles);
-scara.plot(handles.axes1);
+scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'));
 
 set(handles.slider4,'Value',str2double(handles.theta4.String));
 
@@ -485,4 +465,13 @@ function coordinates_cb_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of coordinates_cb
-obj.plot_frame(axes);
+%%
+global scara
+scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'));
+
+
+% --- Executes on button press in Forward_btn.
+function Forward_btn_Callback(hObject, eventdata, handles)
+% hObject    handle to Forward_btn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
