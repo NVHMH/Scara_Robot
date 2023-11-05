@@ -22,7 +22,7 @@ function varargout = scara_robot(varargin)
 
 % Edit the above text to modify the response to help scara_robot
 
-% Last Modified by GUIDE v2.5 05-Nov-2023 11:13:16
+% Last Modified by GUIDE v2.5 05-Nov-2023 12:11:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -68,7 +68,7 @@ global scara
 %% Creat DH Matrix
 a     = [0.2    0.3     0   0];
 alpha = [0      0       0   180];
-d     = [0.251  0       0   -0.0875];
+d     = [0.251  -0.0135       0   -0.0875];
 theta = [0      0       0   0];
 
 %%
@@ -82,7 +82,7 @@ scara = scara.set_joint_variable(3, get(handles.slider3, 'Value'));
 scara = scara.set_joint_variable(4, deg2rad(get(handles.slider4, 'Value')));
 scara = scara.update();
 set_ee_params(scara, handles);
-scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'));
+scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));
 
 
 
@@ -457,8 +457,8 @@ function coordinates_cb_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of coordinates_cb
 %%
-% global scara
-% scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'));
+global scara
+scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));
 
 
 % --- Executes on button press in Forward_btn.
@@ -471,7 +471,7 @@ function Forward_btn_Callback(hObject, eventdata, handles)
 global scara
 scara = scara.update();
 set_ee_params(scara, handles);
-scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'));
+scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));
 
 function x_start_Callback(hObject, eventdata, handles)
 % hObject    handle to x_start (see GCBO)
@@ -608,3 +608,14 @@ function yaw_start_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in workspace_cb.
+function workspace_cb_Callback(hObject, eventdata, handles)
+% hObject    handle to workspace_cb (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of workspace_cb
+global scara
+scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));

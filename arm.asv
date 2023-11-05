@@ -127,21 +127,19 @@ classdef arm
             Z1 = ones(1, size(th, 2))*(obj.x(3,4)-H32);
             Z2 = ones(1, size(th, 2))*(obj.x(3,4)+H31-H32);
             
-            
-            surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', COLOR_PINK, 'EdgeColor', 'none', 'FaceAlpha', opacity)
+            surf(axes, [X;X], [Y;Y], [0;Z2], 'FaceColor', COLOR_PINK, 'EdgeColor', 'none', 'FaceAlpha', opacity)
             fill3(axes, X, Y, Z1, COLOR_PINK, 'FaceAlpha', opacity);
             fill3(axes, X, Y, Z2, COLOR_PINK, 'FaceAlpha', opacity);
             
             %% end effector
             R4 = 0.02;
             H4 = 0.01;
-            L4 = 0.042;
             
             th = linspace(-pi, pi, 100);
             X = R4*cos(th) + obj.x(1,5);
             Y = R4*sin(th) + obj.x(2,5);
-            Z1 = ones(1, size(th, 2))*(obj.x(3,5)+L4);
-            Z2 = ones(1, size(th, 2))*(obj.x(3,5)+L4+H4);
+            Z1 = ones(1, size(th, 2))*(obj.x(3,5)-H4);
+            Z2 = ones(1, size(th, 2))*obj.x(3,5);
             
             surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', COLOR_RED, 'EdgeColor', 'none', 'FaceAlpha', opacity)
             fill3(axes, X, Y, Z1, COLOR_RED, 'FaceAlpha', opacity);
