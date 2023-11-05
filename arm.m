@@ -36,7 +36,7 @@ classdef arm
         function plot_arm(obj, axes)
             %% Parameters
             opacity = 0.2;
-            COLOR_GRAY =  [139 137 137]/255;
+            COLOR_GRAY =  [0 255 0]/255;
             COLOR_PINK = [238 106 167]/255;
             COLOR_RED = [255 0 0]/255;
             COLOR_GREEN = [0.3, 0.7, 0.3];
@@ -128,9 +128,9 @@ classdef arm
             Z2 = ones(1, size(th, 2))*(obj.x(3,4)+H31-H32);
             
             
-            surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', COLOR_PINK, 'EdgeColor', 'none', 'FaceAlpha', opacity)
-            fill3(axes, X, Y, Z1, COLOR_PINK, 'FaceAlpha', opacity);
-            fill3(axes, X, Y, Z2, COLOR_PINK, 'FaceAlpha', opacity);
+            surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', COLOR_GRAY, 'EdgeColor', 'none', 'FaceAlpha', opacity)
+            fill3(axes, X, Y, Z1, COLOR_GRAY, 'FaceAlpha', opacity);
+            fill3(axes, X, Y, Z2, COLOR_GRAY, 'FaceAlpha', opacity);
             
             %% end effector
             R4 = 0.02;
@@ -167,30 +167,40 @@ classdef arm
         %%
         function plot_workspace(obj, axes)
             PURPLE_COLOR = [0.4940 0.1840 0.5560];
-            
-            th = deg2rad(linspace(-139, 139, 100));
+            % plot WS1
+            th = deg2rad(linspace(-141.02, 141.02, 100));
             X = 0.17805*cos(th);
             Y = 0.17805*sin(th);
             Z1 = ones(1, size(th, 2))*(0.0);
-            Z2 = ones(1, size(th, 2))*(0.1635-0.0135);
+            Z2 = ones(1, size(th, 2))*(0.15);
             surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
-%             R = sqrt(obj.a(2)^2 + obj.a(3)^2 - 2*obj.a(2)*obj.a(3)*cosd(180-148));
+
+            % plot WS2
+            th = deg2rad(linspace(-125, 125, 100));
+            X = 0.5*cos(th);
+            Y = 0.5*sin(th);
+            Z1 = ones(1, size(th, 2))*(0.0);
+            Z2 = ones(1, size(th, 2))*(0.15);
+            surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
+        
+            % plot WS3
+            th = deg2rad(linspace(-125, -125-145, 100));
+            X = 0.3*cos(th)-0.2*cosd(55);
+            Y = 0.3*sin(th)-0.2*sind(55);
+            Z1 = ones(1, size(th, 2))*(0.0);
+            Z2 = ones(1, size(th, 2))*(0.15);
             
-%             phi = (100-62)*2;
-%             th = deg2rad(linspace(-phi-62, -62, 100));
-%             X = obj.a(2)*cos(-62*pi/180) + obj.a(3)*cos(th);
-%             Y = obj.a(2)*sin(-62*pi/180) + obj.a(3)*sin(th);
-%             surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
-%             
-%             th = deg2rad(linspace(242, phi+242, 100));
-%             X = obj.a(2)*cos(242*pi/180) + obj.a(3)*cos(th);
-%             Y = obj.a(2)*sin(242*pi/180) + obj.a(3)*sin(th);
-%             surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
-%             
-%             th = deg2rad(linspace(-180, 180, 100));
-%             X = R*cos(th);
-%             Y = R*sin(th);
-%             surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
+            surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
+
+            % plot WS4
+            th = deg2rad(linspace(125, 125+145, 100));
+            X = 0.3*cos(th)-0.2*cosd(55);
+            Y = 0.3*sin(th)+0.2*sind(55);
+            Z1 = ones(1, size(th, 2))*(0.0);
+            Z2 = ones(1, size(th, 2))*(0.15);
+            
+            surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
+
         end
 
         
