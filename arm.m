@@ -167,11 +167,12 @@ classdef arm
         %%
         function plot_workspace(obj, axes)
             PURPLE_COLOR = [0.4940 0.1840 0.5560];
+            WHITE_COLOR = [1 1 1];
             % plot WS1
             th = deg2rad(linspace(-141.02, 141.02, 100));
             X = 0.17805*cos(th);
             Y = 0.17805*sin(th);
-            Z1 = ones(1, size(th, 2))*(0.0);
+            Z1 = ones(1, size(th, 2))*(0.009);
             Z2 = ones(1, size(th, 2))*(0.15);
             surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
 
@@ -179,28 +180,34 @@ classdef arm
             th = deg2rad(linspace(-125, 125, 100));
             X = 0.5*cos(th);
             Y = 0.5*sin(th);
-            Z1 = ones(1, size(th, 2))*(0.0);
-            Z2 = ones(1, size(th, 2))*(0.15);
+            
             surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
         
             % plot WS3
-            th = deg2rad(linspace(-125, -125-145, 100));
+            th = deg2rad(linspace(-125, -125-106.8351, 100));
             X = 0.3*cos(th)-0.2*cosd(55);
             Y = 0.3*sin(th)-0.2*sind(55);
-            Z1 = ones(1, size(th, 2))*(0.0);
-            Z2 = ones(1, size(th, 2))*(0.15);
             
             surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
 
             % plot WS4
-            th = deg2rad(linspace(125, 125+145, 100));
+            th = deg2rad(linspace(125, 125+106.8351, 100));
             X = 0.3*cos(th)-0.2*cosd(55);
             Y = 0.3*sin(th)+0.2*sind(55);
-            Z1 = ones(1, size(th, 2))*(0.0);
-            Z2 = ones(1, size(th, 2))*(0.15);
             
             surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
-
+            
+            % plot non_WS
+            X  = linspace(-0.3, -0.13841, 100);
+            Y  = linspace(-0.112, 0.112, 100);
+            X_const = ones(1, size(th, 2))*(-0.3);
+            Y_const  = ones(1, size(th, 2))*0.112;
+            
+            surf(axes, [X;X], [-Y_const;-Y_const], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
+            surf(axes, [X;X], [Y_const;Y_const], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
+            surf(axes, [X_const;X_const], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
+           
+         
         end
 
         
