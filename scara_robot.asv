@@ -510,26 +510,19 @@ function Forward_btn_Callback(hObject, eventdata, handles)
 
 %%
 global scara
-global float pre_th1;
-global float th1;
-global float pre_th2;
-global float th2;
-global float pre_th4;
-global float th4;
-global float pre_d3;
-global float d3;
 vec_th1 = linspace(pre_th1, th1, 100);
 vec_th2 = linspace(pre_th2, th2, 100);
 vec_d3  = linspace(pre_d3, d3, 100);
 vec_th4 = linspace(pre_th4, th4, 100);
 for i = 1:100
-    scara = scara.set_joint_variable(1, vec_th1(i));
-    scara = scara.set_joint_variable(2, vec_th2(i));
-    scara = scara.set_joint_variable(3, vec_d3(i));
-    scara = scara.set_joint_variable(4, vec_th4(i));
+    scara = scara.set_joint_variable(1, vec_th1(i), 'Value');
+    scara = scara.set_joint_variable(2, vec_th2(i), 'Value');
+    scara = scara.set_joint_variable(3, vec_d3(i), 'Value');
+    scara = scara.set_joint_variable(4, vec_th4(i), 'Value');
     scara = scara.update();
-    scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));    
-end   
+    scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));
+end
+    
 set_ee_params(scara, handles);
 
 
