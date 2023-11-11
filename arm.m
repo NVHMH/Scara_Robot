@@ -173,7 +173,7 @@ classdef arm
             X = 0.17805*cos(th);
             Y = 0.17805*sin(th);
             Z1 = ones(1, size(th, 2))*(0.009);
-            Z2 = ones(1, size(th, 2))*(0.15);
+            Z2 = ones(1, size(th, 2))*(0.159);
             surf(axes, [X;X], [Y;Y], [Z1;Z2], 'FaceColor', PURPLE_COLOR, 'EdgeColor', 'none', 'FaceAlpha', 0.3);
 
             % plot WS2

@@ -22,7 +22,7 @@ function varargout = scara_robot(varargin)
 
 % Edit the above text to modify the response to help scara_robot
 
-% Last Modified by GUIDE v2.5 05-Nov-2023 12:11:32
+% Last Modified by GUIDE v2.5 11-Nov-2023 10:27:21
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -343,9 +343,9 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in btn_DH_Table.
-function btn_DH_Table_Callback(hObject, eventdata, handles)
-% hObject    handle to btn_DH_Table (see GCBO)
+% --- Executes on button press in motion_btn.
+function DH_table_btn_Callback(hObject, eventdata, handles)
+% hObject    handle to motion_btn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global scara
@@ -502,9 +502,9 @@ global scara
 scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));
 
 
-% --- Executes on button press in Forward_btn.
-function Forward_btn_Callback(hObject, eventdata, handles)
-% hObject    handle to Forward_btn (see GCBO)
+% --- Executes on button press in motion_btn.
+function motion_btn_Callback(hObject, eventdata, handles)
+% hObject    handle to motion_btn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -685,3 +685,50 @@ function workspace_cb_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of workspace_cb
 global scara
 scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));
+
+
+% --- Executes on button press in inverse_btn.
+function inverse_btn_Callback(hObject, eventdata, handles)
+% hObject    handle to inverse_btn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global scara
+global float pre_th1;
+global float th1;
+global float pre_th2;
+global float th2;
+global float pre_th4;
+global float th4;
+global float pre_d3;
+global float d3;
+%end_effector
+p0 = zeros(1, 6);
+p0(1) = str2double(get(handles.x_start, 'String'));
+p0(2) = str2double(get(handles.y_start, 'String'));
+p0(3) = str2double(get(handles.z_start, 'String'));
+p0(4) = deg2rad(str2double(get(handles.roll_start, 'String')));
+p0(5) = deg2rad(str2double(get(handles.pitch_start, 'String')));
+p0(6) = deg2rad(str2double(get(handles.yaw_start, 'String')));
+
+joint = inverse_kinematics(scara.a, scara.alpha, scara.d, scara.theta, p0);
+
+pre_th1 = th1;
+pre_th2 = th2;
+pre_d3  = d3;
+pre_th4 = th4;
+
+th1 = joint(1);
+th2 = joint(2);
+d3  = joint(3);
+th4 = joint(4);
+
+set(handles.slider1,'Value',rad2deg(th1));
+handles.theta1.String = get(handles.slider1,'Value');
+set(handles.slider2,'Value',rad2deg(th2));
+handles.theta2.String = get(handles.slider2,'Value');
+set(handles.slider3,'Value',rad2deg(d3));
+handles.d3.String = get(handles.slider3,'Value');
+set(handles.slider4,'Value',rad2deg(th4));
+handles.theta4.String = get(handles.slider4,'Value');
+
+
