@@ -22,7 +22,7 @@ function varargout = scara_robot(varargin)
 
 % Edit the above text to modify the response to help scara_robot
 
-% Last Modified by GUIDE v2.5 11-Nov-2023 10:27:21
+% Last Modified by GUIDE v2.5 02-Dec-2023 23:06:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -96,7 +96,10 @@ global float pre_th4;
 global float th4;
 global float pre_d3;
 global float d3;
-th2 = deg2rad(-45);
+th1 = deg2rad(-54.4864);
+th2 = deg2rad(45.027);
+d3  = 0;
+th4 = deg2rad(324.459);
 
 
 
@@ -344,13 +347,13 @@ end
 
 
 % --- Executes on button press in motion_btn.
-function DH_table_btn_Callback(hObject, eventdata, handles)
-% hObject    handle to motion_btn (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-global scara
-table((1:scara.n)', scara.a', scara.alpha', scara.d', scara.theta', 'VariableNames', {'Joint', 'a', 'alpha', 'd', 'theta'})
-
+% function DH_table_btn_Callback(hObject, eventdata, handles)
+% % hObject    handle to motion_btn (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% global scara
+% table((1:scara.n)', scara.a', scara.alpha', scara.d', scara.theta', 'VariableNames', {'Joint', 'a', 'alpha', 'd', 'theta'})
+% 
 
 
 function x_end_Callback(hObject, eventdata, handles)
@@ -518,19 +521,82 @@ global float pre_th4;
 global float th4;
 global float pre_d3;
 global float d3;
-vec_th1 = linspace(pre_th1, th1, 100);
-vec_th2 = linspace(pre_th2, th2, 100);
-vec_d3  = linspace(pre_d3, d3, 100);
-vec_th4 = linspace(pre_th4, th4, 100);
-for i = 1:100
-    scara = scara.set_joint_variable(1, vec_th1(i));
-    scara = scara.set_joint_variable(2, vec_th2(i));
-    scara = scara.set_joint_variable(3, vec_d3(i));
-    scara = scara.set_joint_variable(4, vec_th4(i));
-    scara = scara.update();
-    scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));    
-end   
-set_ee_params(scara, handles);
+global float qmax_th1;
+global float qmax_th2;
+global float qmax_d3;
+global float qmax_th4;
+
+qmax_th1 = abs(th1 - pre_th1);
+qmax_th2 = abs(th2 - pre_th2);
+qmax_d3 = abs(d3 - pre_d3);
+qmax_th4 = abs(th4 - pre_th4);
+
+[t_th1, q_th1, v_th1, a_th1] = LSPB_trajectory(qmax_th1, 10, 300);
+[t_th2, q_th2, v_th2, a_th2] = LSPB_trajectory(qmax_th2, 10, 300);
+[t_d3, q_d3, v_d3, a_d3] = LSPB_trajectory(qmax_d3, 0.5, 10);
+[t_th4, q_th4, v_th4, a_th4] = LSPB_trajectory(qmax_th4, 20, 300);
+
+%Call time of effector
+t1 = t_th1(length(t_th1));
+t2 = t_th2(length(t_th2));
+t3 = t_d3(length(t_d3));
+t_e = [t_th1 t1+t_th2 t1+t2+t_d3 t1+t2+t3+t_th4];
+%clear 
+cla(handles.axes_qe);
+cla(handles.axes_ve);
+cla(handles.axes_ae);
+cla(handles.axes_q1);
+cla(handles.axes_v1);
+cla(handles.axes_a1);
+cla(handles.axes_q2);
+cla(handles.axes_v2);
+cla(handles.axes_a2);
+cla(handles.axes_q3);
+cla(handles.axes_v3);
+cla(handles.axes_a3);
+cla(handles.axes_q4);
+cla(handles.axes_v4);
+cla(handles.axes_a4);
+
+%Joint 1 motion
+for i = 1: length(t_th1)
+    plot(handles.axes_q1, t_th1(1:i), q_th1(1,1:i), 'b-');
+    plot(handles.axes_v1, t_th1(1:i), v_th1(1,1:i), 'b-');
+    plot(handles.axes_a1, t_th1(1:i), a_th1(1,1:i), 'b-');
+    pause(t_th1(length(t_th1))/length(t_th1));
+end
+%Joint 2 motion
+for i = 1: length(t_th2)
+    plot(handles.axes_q2, t_th2(1:i), q_th2(1,1:i), 'b-');
+    plot(handles.axes_v2, t_th2(1:i), v_th2(1,1:i), 'b-');
+    plot(handles.axes_a2, t_th2(1:i), a_th2(1,1:i), 'b-');
+    pause(t_th2(length(t_th2))/length(t_th2));
+end
+%Joint 3 motion
+for i = 1: length(t_d3)
+    plot(handles.axes_q3, t_d3(1:i), q_d3(1,1:i), 'b-');
+    plot(handles.axes_v3, t_d3(1:i), v_d3(1,1:i), 'b-');
+    plot(handles.axes_a3, t_d3(1:i), a_d3(1,1:i), 'b-');
+    pause(t_d3(length(t_d3))/length(t_d3));
+end
+%Joint 4 motion
+for i = 1: length(t_th4)
+    plot(handles.axes_q4, t_th1(1:i), q_th4(1,1:i), 'b-');
+    plot(handles.axes_v4, t_th1(1:i), v_th4(1,1:i), 'b-');
+    plot(handles.axes_a4, t_th1(1:i), a_th4(1,1:i), 'b-');
+    pause(t_th4(length(t_th4))/length(t_th2));
+end
+
+
+% for i = 1:1000
+%     scara = scara.set_joint_variable(1, vec_th1(i));
+%     scara = scara.set_joint_variable(2, vec_th2(i));
+%     scara = scara.set_joint_variable(3, vec_d3(i));
+%     scara = scara.set_joint_variable(4, vec_th4(i));
+%     scara = scara.update();
+%     scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));    
+% end   
+% set_ee_params(scara, handles);
 
 
 
@@ -726,9 +792,53 @@ set(handles.slider1,'Value',rad2deg(th1));
 handles.theta1.String = get(handles.slider1,'Value');
 set(handles.slider2,'Value',rad2deg(th2));
 handles.theta2.String = get(handles.slider2,'Value');
-set(handles.slider3,'Value',rad2deg(d3));
+set(handles.slider3,'Value',d3);
 handles.d3.String = get(handles.slider3,'Value');
 set(handles.slider4,'Value',rad2deg(th4));
 handles.theta4.String = get(handles.slider4,'Value');
 
 
+% --- Executes on selection change in Select_joint.
+% function Select_joint_Callback(hObject, eventdata, handles)
+% % hObject    handle to Select_joint (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% 
+% % Hints: contents = cellstr(get(hObject,'String')) returns Select_joint contents as cell array
+% %        contents{get(hObject,'Value')} returns selected item from Select_joint
+% %%
+% contents = cellstr(get(handles.Select_joint, 'String'));
+% space_plot_type = contents{get(handles.Select_joint, 'Value')};
+% if strcmp(space_plot_type, 'Joint 1')
+%     set(handles.Joint_1, 'Visible', 'on');
+%     set(handles.Joint_2, 'Visible', 'off');
+%     set(handles.Joint_3, 'Visible', 'off');
+%     set(handles.Joint_4, 'Visible', 'off');
+% elseif strcmp(space_plot_type, 'Joint 2')
+%     set(handles.Joint_1, 'Visible', 'off');
+%     set(handles.Joint_2, 'Visible', 'on');
+%     set(handles.Joint_3, 'Visible', 'off');
+%     set(handles.Joint_4, 'Visible', 'off');
+% elseif strcmp(space_plot_type, 'Joint 3')
+%     set(handles.Joint_1, 'Visible', 'off');
+%     set(handles.Joint_2, 'Visible', 'off');
+%     set(handles.Joint_3, 'Visible', 'on');
+%     set(handles.Joint_4, 'Visible', 'off');
+% elseif strcmp(space_plot_type, 'Joint 4')
+%     set(handles.Joint_1, 'Visible', 'off');
+%     set(handles.Joint_2, 'Visible', 'off');
+%     set(handles.Joint_3, 'Visible', 'off');
+%     set(handles.Joint_4, 'Visible', 'on');
+% end
+
+% --- Executes during object creation, after setting all properties.
+function Select_joint_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Select_joint (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

@@ -4,6 +4,7 @@ classdef arm
         a, alpha, d, theta 
         n, base, type
         x, T, end_effector
+        
     end
     %%
     methods
