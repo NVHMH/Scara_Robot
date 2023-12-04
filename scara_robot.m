@@ -22,7 +22,7 @@ function varargout = scara_robot(varargin)
 
 % Edit the above text to modify the response to help scara_robot
 
-% Last Modified by GUIDE v2.5 02-Dec-2023 23:06:50
+% Last Modified by GUIDE v2.5 03-Dec-2023 22:22:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -70,24 +70,7 @@ a     = [0.2    0.3     0   0];
 alpha = [0      0       0   180];
 d     = [0.251  -0.0045       0   -0.0875];
 theta = [0      0       0   0];
-
-%%
-base = [0; 0; 0];
-type = ['r', 'r', 'p', 'r']; % xoay, xoay, truot, xoay
-scara = arm(a, alpha, d, theta, base, type);
-scara = scara.set_joint_variable(1, deg2rad(get(handles.slider1, 'Value')));
-scara = scara.set_joint_variable(2, deg2rad(-45));
-% scara = scara.set_joint_variable(2, deg2rad(get(handles.slider2, 'Value')));
-scara = scara.set_joint_variable(3, get(handles.slider3, 'Value'));
-scara = scara.set_joint_variable(4, deg2rad(get(handles.slider4, 'Value')));
-scara = scara.update();
-set_ee_params(scara, handles);
-scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));
-
-
-
-%% test
-
+%% init
 global float pre_th1;
 global float th1;
 global float pre_th2;
@@ -96,10 +79,25 @@ global float pre_th4;
 global float th4;
 global float pre_d3;
 global float d3;
-th1 = deg2rad(-54.4864);
-th2 = deg2rad(45.027);
+th1 = deg2rad(0);
+th2 = deg2rad(-45);
 d3  = 0;
-th4 = deg2rad(324.459);
+th4 = deg2rad(0);
+%%
+base = [0; 0; 0];
+type = ['r', 'r', 'p', 'r']; % xoay, xoay, truot, xoay
+scara = arm(a, alpha, d, theta, base, type);
+scara = scara.set_joint_variable(1, th1);
+scara = scara.set_joint_variable(2, th2);
+scara = scara.set_joint_variable(3, d3);
+scara = scara.set_joint_variable(4, th4);
+scara = scara.update();
+set_ee_params(scara, handles);
+scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));
+
+
+
+
 
 
 
@@ -526,21 +524,18 @@ global float qmax_th2;
 global float qmax_d3;
 global float qmax_th4;
 
+%% Trajectory joint
 qmax_th1 = abs(th1 - pre_th1);
 qmax_th2 = abs(th2 - pre_th2);
 qmax_d3 = abs(d3 - pre_d3);
 qmax_th4 = abs(th4 - pre_th4);
 
-[t_th1, q_th1, v_th1, a_th1] = LSPB_trajectory(qmax_th1, 10, 300);
-[t_th2, q_th2, v_th2, a_th2] = LSPB_trajectory(qmax_th2, 10, 300);
-[t_d3, q_d3, v_d3, a_d3] = LSPB_trajectory(qmax_d3, 0.5, 10);
-[t_th4, q_th4, v_th4, a_th4] = LSPB_trajectory(qmax_th4, 20, 300);
+[t_th1, q_th1, v_th1, a_th1] = LSPB_trajectory(qmax_th1, 7.85, 200);
+[t_th2, q_th2, v_th2, a_th2] = LSPB_trajectory(qmax_th2, 7.85, 200);
+[t_d3, q_d3, v_d3, a_d3] = LSPB_trajectory(qmax_d3, 2, 200);
+[t_th4, q_th4, v_th4, a_th4] = LSPB_trajectory(qmax_th4, 29.67, 200);
 
-%Call time of effector
-t1 = t_th1(length(t_th1));
-t2 = t_th2(length(t_th2));
-t3 = t_d3(length(t_d3));
-t_e = [t_th1 t1+t_th2 t1+t2+t_d3 t1+t2+t3+t_th4];
+
 %clear 
 cla(handles.axes_qe);
 cla(handles.axes_ve);
@@ -558,43 +553,177 @@ cla(handles.axes_q4);
 cla(handles.axes_v4);
 cla(handles.axes_a4);
 
-%Joint 1 motion
+%Call time 
+len_t1 = length(t_th1);
+t1 = t_th1(len_t1);
+dt_1 = t_th1(len_t1)/len_t1;
+
+len_t2 = length(t_th2);
+t2 = t_th2(len_t2);
+dt_2 = t_th2(len_t2)/len_t2;
+
+len_t3 = length(t_d3);
+t3 = t_d3(len_t3);
+dt_3 = t_d3(len_t3)/len_t3;
+
+len_t4 = length(t_th4);
+t4 = t_th4(len_t4);
+dt_4 = t_th4(len_t4)/len_t4;
+
+t_e = [t_th1 t1+t_th2 t1+t2+t_d3 t1+t2+t3+t_th4];
+
+%Offset
+th1_start   = pre_th1;
+th1_temp    = th1;
+th2_start   = pre_th2;
+th2_temp    = th2;
+d3_start   = pre_d3;
+d3_temp    = d3;
+th4_start   = pre_th4;
+th4_temp    = th4;
+
+scara = scara.update();
+pre_xe = scara.end_effector(1);
+pre_ye = scara.end_effector(2);
+pre_ze = scara.end_effector(3);
+q_e(1) = 0;
+v_e(1) = 0;
+a_e(1) = 0;
+
+%% Joint 1 motion
 for i = 1: length(t_th1)
-    plot(handles.axes_q1, t_th1(1:i), q_th1(1,1:i), 'b-');
-    plot(handles.axes_v1, t_th1(1:i), v_th1(1,1:i), 'b-');
-    plot(handles.axes_a1, t_th1(1:i), a_th1(1,1:i), 'b-');
-    pause(t_th1(length(t_th1))/length(t_th1));
+    %% Draw robot
+    if (th1_temp - pre_th1) > 0
+        th1 = th1_start + q_th1(i);
+    else 
+        th1 = th1_start - q_th1(i);
+    end
+    scara = scara.set_joint_variable(1, th1);
+    scara = scara.update();
+    scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));    
+    set_ee_params(scara, handles);
+    
+    %% End effector
+    if (i > 1)
+        q_e(i) = sqrt((scara.end_effector(1)-pre_xe)^2+(scara.end_effector(2)-pre_ye)^2+(scara.end_effector(3)-pre_ze)^2)+q_e(i-1);
+        pre_xe = scara.end_effector(1);
+        pre_ye = scara.end_effector(2);
+        pre_ze = scara.end_effector(3);
+        v_e(i) = (q_e(i)-q_e(i-1))/dt_1;
+        a_e(i) = (v_e(i) - v_e(i-1))/dt_1;
+    end
+    plot(handles.axes_qe, t_e(1:i), q_e(1:i), 'b-');
+    plot(handles.axes_ve, t_e(1:i), v_e(1:i), 'b-');
+    plot(handles.axes_ae, t_e(1:i), a_e(1:i), 'b-');
+    
+    %% Joint 
+    plot(handles.axes_q1, t_th1(1:i), q_th1(1:i), 'b-');
+    plot(handles.axes_v1, t_th1(1:i), v_th1(1:i), 'b-');
+    plot(handles.axes_a1, t_th1(1:i), a_th1(1:i), 'b-');
+    pause(dt_1);
 end
-%Joint 2 motion
+%% Joint 2 motion
+pre_xe = scara.end_effector(1);
+pre_ye = scara.end_effector(2);
+pre_ze = scara.end_effector(3);
 for i = 1: length(t_th2)
-    plot(handles.axes_q2, t_th2(1:i), q_th2(1,1:i), 'b-');
-    plot(handles.axes_v2, t_th2(1:i), v_th2(1,1:i), 'b-');
-    plot(handles.axes_a2, t_th2(1:i), a_th2(1,1:i), 'b-');
-    pause(t_th2(length(t_th2))/length(t_th2));
+    %% Draw robot
+    if (th2_temp - pre_th2) > 0
+        th2 = th2_start + q_th2(i);
+    else 
+        th2 = th2_start - q_th2(i);
+    end
+    scara = scara.set_joint_variable(2, th2);
+    scara = scara.update();
+    scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));    
+    set_ee_params(scara, handles);
+    %% End effector
+    q_e(len_t1+i) = sqrt((scara.end_effector(1)-pre_xe)^2+(scara.end_effector(2)-pre_ye)^2+(scara.end_effector(3)-pre_ze)^2)+q_e(len_t1+i-1);
+    pre_xe = scara.end_effector(1);
+    pre_ye = scara.end_effector(2);
+    pre_ze = scara.end_effector(3);
+    v_e(len_t1+i) = (q_e(len_t1+i)-q_e(len_t1+i-1))/dt_2;
+    a_e(len_t1+i) = (v_e(len_t1+i) - v_e(len_t1+i-1))/dt_2;
+    plot(handles.axes_qe, t_e(1:(len_t1+i)), q_e(1:(len_t1+i)), 'b-');
+    plot(handles.axes_ve, t_e(1:(len_t1+i)), v_e(1:(len_t1+i)), 'b-');
+    plot(handles.axes_ae, t_e(1:(len_t1+i)), a_e(1:(len_t1+i)), 'b-');
+    
+    %% Joint 
+    plot(handles.axes_q2, t_th2(1:i), q_th2(1:i), 'b-');
+    plot(handles.axes_v2, t_th2(1:i), v_th2(1:i), 'b-');
+    plot(handles.axes_a2, t_th2(1:i), a_th2(1:i), 'b-');
+    pause(dt_2);
 end
-%Joint 3 motion
+%% Joint 3 motion
+pre_xe = scara.end_effector(1);
+pre_ye = scara.end_effector(2);
+pre_ze = scara.end_effector(3);
 for i = 1: length(t_d3)
-    plot(handles.axes_q3, t_d3(1:i), q_d3(1,1:i), 'b-');
-    plot(handles.axes_v3, t_d3(1:i), v_d3(1,1:i), 'b-');
-    plot(handles.axes_a3, t_d3(1:i), a_d3(1,1:i), 'b-');
-    pause(t_d3(length(t_d3))/length(t_d3));
+    %% Draw robot
+    if (d3_temp - pre_d3) > 0
+        d3 = d3_start + q_d3(i);
+    else 
+        d3 = d3_start - q_d3(i);
+    end
+    scara = scara.set_joint_variable(3, d3);
+    scara = scara.update();
+    scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));    
+    set_ee_params(scara, handles);
+    %% End effector
+    q_e(len_t1+len_t2+i) = sqrt((scara.end_effector(1)-pre_xe)^2+(scara.end_effector(2)-pre_ye)^2+(scara.end_effector(3)-pre_ze)^2)+q_e(len_t1+len_t2+i-1);
+    pre_xe = scara.end_effector(1);
+    pre_ye = scara.end_effector(2);
+    pre_ze = scara.end_effector(3);
+    v_e(len_t1+len_t2+i) = (q_e(len_t1+len_t2+i)-q_e(len_t1+len_t2+i-1))/dt_3;
+    a_e(len_t1+len_t2+i) = (v_e(len_t1+len_t2+i) - v_e(len_t1+len_t2+i-1))/dt_3;
+    plot(handles.axes_qe, t_e(1:(len_t1+len_t2+i)), q_e(1:(len_t1+len_t2+i)), 'b-');
+    plot(handles.axes_ve, t_e(1:(len_t1+len_t2+i)), v_e(1:(len_t1+len_t2+i)), 'b-');
+    plot(handles.axes_ae, t_e(1:(len_t1+len_t2+i)), a_e(1:(len_t1+len_t2+i)), 'b-');
+
+    %% Joint 
+    plot(handles.axes_q3, t_d3(1:i), q_d3(1:i), 'b-');
+    plot(handles.axes_v3, t_d3(1:i), v_d3(1:i), 'b-');
+    plot(handles.axes_a3, t_d3(1:i), a_d3(1:i), 'b-');
+    pause(dt_3);
 end
-%Joint 4 motion
+%% Joint 4 motion
 for i = 1: length(t_th4)
-    plot(handles.axes_q4, t_th1(1:i), q_th4(1,1:i), 'b-');
-    plot(handles.axes_v4, t_th1(1:i), v_th4(1,1:i), 'b-');
-    plot(handles.axes_a4, t_th1(1:i), a_th4(1,1:i), 'b-');
-    pause(t_th4(length(t_th4))/length(t_th2));
+    %% Draw robot
+    if (th4_temp - pre_th4) > 0
+        th4 = th4_start + q_th4(i);
+    else 
+        th4 = th4_start - q_th4(i);
+    end
+    scara = scara.set_joint_variable(4, th4);
+    scara = scara.update();
+    scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));    
+    set_ee_params(scara, handles);
+    %% End effector
+    q_e(len_t1+len_t2+len_t3+i) = sqrt((scara.end_effector(1)-pre_xe)^2+(scara.end_effector(2)-pre_ye)^2+(scara.end_effector(3)-pre_ze)^2)+q_e(len_t1+len_t2+len_t3+i-1);
+    pre_xe = scara.end_effector(1);
+    pre_ye = scara.end_effector(2);
+    pre_ze = scara.end_effector(3);
+    v_e(len_t1+len_t2+len_t3+i) = (q_e(len_t1+len_t2+len_t3+i)-q_e(len_t1+len_t2+len_t3+i))/dt_4;
+    a_e(len_t1+len_t2+len_t3+i) = (v_e(len_t1+len_t2+len_t3+i) - v_e(len_t1+len_t2+len_t3+i-1))/dt_4;
+    plot(handles.axes_qe, t_e(1:(len_t1+len_t2+len_t3+i)), q_e(1:(len_t1+len_t2+len_t3+i)), 'b-');
+    plot(handles.axes_ve, t_e(1:(len_t1+len_t2+len_t3+i)), v_e(1:(len_t1+len_t2+len_t3+i)), 'b-');
+    plot(handles.axes_ae, t_e(1:(len_t1+len_t2+len_t3+i)), a_e(1:(len_t1+len_t2+len_t3+i)), 'b-');
+    
+    %% Joint 
+    plot(handles.axes_q4, t_th1(1:i), q_th4(1:i), 'b-');
+    plot(handles.axes_v4, t_th1(1:i), v_th4(1:i), 'b-');
+    plot(handles.axes_a4, t_th1(1:i), a_th4(1:i), 'b-');
+    pause(dt_4);
 end
 
 
 % for i = 1:1000
-%     scara = scara.set_joint_variable(1, vec_th1(i));
-%     scara = scara.set_joint_variable(2, vec_th2(i));
-%     scara = scara.set_joint_variable(3, vec_d3(i));
-%     scara = scara.set_joint_variable(4, vec_th4(i));
-%     scara = scara.update();
-%     scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));    
+% scara = scara.set_joint_variable(1, th1);
+% scara = scara.set_joint_variable(2, th2);
+% scara = scara.set_joint_variable(3, d3);
+% scara = scara.set_joint_variable(4, th4);
+% scara = scara.update();
+% scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));    
 % end   
 % set_ee_params(scara, handles);
 
@@ -842,3 +971,6 @@ function Select_joint_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+

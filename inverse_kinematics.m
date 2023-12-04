@@ -1,4 +1,4 @@
-function q = inverse_kinematics(a, alpha, d, theta, end_effector)
+s function q = inverse_kinematics(a, alpha, d, theta, end_effector)
     % [x; y; z; roll; pitch; yaw] = end_effector
     % [theta1; theta2; d3; theta4] = q
     

@@ -1,7 +1,7 @@
 classdef arm
     %%
     properties
-        a, alpha, d, theta 
+        a, alpha, d, theta % d (m), theta (rad)
         n, base, type
         x, T, end_effector
         
@@ -38,7 +38,7 @@ classdef arm
             %% Parameters
             opacity = 0.2;
             COLOR_GRAY =  [0 255 0]/255;
-            COLOR_PINK = [238 106 167]/255;
+%             COLOR_PINK = [238 106 167]/255;
             COLOR_RED = [255 0 0]/255;
             COLOR_GREEN = [0.3, 0.7, 0.3];
             COLOR_BLUE = [0.3, 0.7, 0.7];
@@ -166,9 +166,9 @@ classdef arm
             quiver3(axes, obj.x(1,:), obj.x(2,:), obj.x(3,:), vz(1,:), vz(2,:), vz(3,:), axis_scale, 'b', 'LineWidth', 2);
         end
         %%
-        function plot_workspace(obj, axes)
+        function plot_workspace(obj,axes)
             PURPLE_COLOR = [0.4940 0.1840 0.5560];
-            WHITE_COLOR = [1 1 1];
+%             WHITE_COLOR = [1 1 1];
             % plot WS1
             th = deg2rad(linspace(-141.02, 141.02, 100));
             X = 0.17805*cos(th);

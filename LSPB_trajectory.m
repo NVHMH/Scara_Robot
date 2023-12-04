@@ -6,7 +6,7 @@ function [t, q, v, a] = LSPB_trajectory(qmax, vmax, amax)
     tc = vmax/amax;
     tf = qmax/vmax +tc;
     
-    t = linspace(0, tf, 500);
+    t = linspace(0, tf, 200);
     q = zeros(size(t));
     v = zeros(size(t));
     a = zeros(size(t));
