@@ -1,4 +1,4 @@
-s function q = inverse_kinematics(a, alpha, d, theta, end_effector)
+ function q = inverse_kinematics(a, alpha, d, theta, end_effector)
     % [x; y; z; roll; pitch; yaw] = end_effector
     % [theta1; theta2; d3; theta4] = q
     
@@ -6,6 +6,7 @@ s function q = inverse_kinematics(a, alpha, d, theta, end_effector)
     % Check condition
     if sqrt(s) > a(1) + a(2) || sqrt(s) < abs(a(1) - a(2))
         warndlg('Inverse Kinematics Condition!', 'Warning');
+        return
     end
    
     c2 = (s - a(1)^2 - a(2)^2)/(2*a(1)*a(2));
@@ -18,7 +19,6 @@ s function q = inverse_kinematics(a, alpha, d, theta, end_effector)
     q(3) = end_effector(3) - d(1) -d(2) -d(4);
     
     % Check condition
-    
     if (q(1) > deg2rad(125))
         q(1) = deg2rad(125);
         warndlg('Inverse Kinematics Condition!', 'Warning');

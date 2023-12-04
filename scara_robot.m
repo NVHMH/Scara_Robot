@@ -22,7 +22,7 @@ function varargout = scara_robot(varargin)
 
 % Edit the above text to modify the response to help scara_robot
 
-% Last Modified by GUIDE v2.5 03-Dec-2023 22:22:28
+% Last Modified by GUIDE v2.5 04-Dec-2023 20:33:39
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,18 +79,18 @@ global float pre_th4;
 global float th4;
 global float pre_d3;
 global float d3;
-th1 = deg2rad(0);
-th2 = deg2rad(-45);
-d3  = 0;
-th4 = deg2rad(0);
+pre_th1 = deg2rad(0);
+pre_th2 = deg2rad(-45);
+pre_d3  = 0;
+pre_th4 = deg2rad(0);
 %%
 base = [0; 0; 0];
 type = ['r', 'r', 'p', 'r']; % xoay, xoay, truot, xoay
 scara = arm(a, alpha, d, theta, base, type);
-scara = scara.set_joint_variable(1, th1);
-scara = scara.set_joint_variable(2, th2);
-scara = scara.set_joint_variable(3, d3);
-scara = scara.set_joint_variable(4, th4);
+scara = scara.set_joint_variable(1, pre_th1);
+scara = scara.set_joint_variable(2, pre_th2);
+scara = scara.set_joint_variable(3, pre_d3);
+scara = scara.set_joint_variable(4, pre_th4);
 scara = scara.update();
 set_ee_params(scara, handles);
 scara.plot(handles.axes1, get(handles.coordinates_cb,'Value'), get(handles.workspace_cb,'Value'));
@@ -124,7 +124,7 @@ function slider1_Callback(hObject, eventdata, handles)
 % global scara
 global float pre_th1;
 global float th1;
-pre_th1 = th1;
+% pre_th1 = th1;
 th1 = deg2rad(get(handles.slider1, 'Value'));
 
 handles.theta1.String = get(handles.slider1,'Value'); 
@@ -155,7 +155,7 @@ function slider2_Callback(hObject, eventdata, handles)
 % global scara
 global float pre_th2;
 global float th2;
-pre_th2 = th2;
+% pre_th2 = th2;
 th2 = deg2rad(get(handles.slider2, 'Value'));
 
 handles.theta2.String = get(handles.slider2,'Value'); 
@@ -183,7 +183,7 @@ function slider3_Callback(hObject, eventdata, handles)
 % global scara
 global float pre_d3;
 global float d3;
-pre_d3 = d3;
+% pre_d3 = d3;
 d3 = get(handles.slider3, 'Value');
 
 handles.d3.String = get(handles.slider3,'Value'); 
@@ -211,7 +211,7 @@ function slider4_Callback(hObject, eventdata, handles)
 % global scara
 global float pre_th4;
 global float th4;
-pre_th4 = th4;
+% pre_th4 = th4;
 th4 = deg2rad(get(handles.slider4, 'Value'));
 
 handles.theta4.String = get(handles.slider4,'Value'); 
@@ -240,7 +240,7 @@ function theta1_Callback(hObject, eventdata, handles)
 global float pre_th1;
 global float th1;
 set(handles.slider1,'Value',str2double(handles.theta1.String));
-pre_th1 = th1;
+% pre_th1 = th1;
 th1 = deg2rad(get(handles.slider1, 'Value'));
 
 
@@ -269,7 +269,7 @@ function theta2_Callback(hObject, eventdata, handles)
 global float pre_th2;
 global float th2;
 set(handles.slider2,'Value',str2double(handles.theta2.String));
-pre_th2 = th2;
+% pre_th2 = th2;
 th2 = deg2rad(get(handles.slider2, 'Value'));
 % --- Executes during object creation, after setting all properties.
 function theta2_CreateFcn(hObject, eventdata, handles)
@@ -297,7 +297,7 @@ function d3_Callback(hObject, eventdata, handles)
 global float pre_d3;
 global float d3;
 set(handles.slider3,'Value',str2double(handles.d3.String));
-pre_d3 = d3;
+% pre_d3 = d3;
 d3 = get(handles.slider3, 'Value');
 
 % --- Executes during object creation, after setting all properties.
@@ -326,7 +326,7 @@ function theta4_Callback(hObject, eventdata, handles)
 global float pre_th4;
 global float th4;
 set(handles.slider4,'Value',str2double(handles.theta4.String));
-pre_th4 = th4;
+% pre_th4 = th4;
 th4 = deg2rad(get(handles.slider4, 'Value'));
 
 
@@ -525,10 +525,10 @@ global float qmax_d3;
 global float qmax_th4;
 
 %% Trajectory joint
-qmax_th1 = abs(th1 - pre_th1);
-qmax_th2 = abs(th2 - pre_th2);
-qmax_d3 = abs(d3 - pre_d3);
-qmax_th4 = abs(th4 - pre_th4);
+qmax_th1 = abs(th1 - pre_th1)
+qmax_th2 = abs(th2 - pre_th2)
+qmax_d3 = abs(d3 - pre_d3)
+qmax_th4 = abs(th4 - pre_th4)
 
 [t_th1, q_th1, v_th1, a_th1] = LSPB_trajectory(qmax_th1, 7.85, 200);
 [t_th2, q_th2, v_th2, a_th2] = LSPB_trajectory(qmax_th2, 7.85, 200);
@@ -623,6 +623,7 @@ for i = 1: length(t_th1)
     pause(dt_1);
 end
 %% Joint 2 motion
+scara = scara.update();
 pre_xe = scara.end_effector(1);
 pre_ye = scara.end_effector(2);
 pre_ze = scara.end_effector(3);
@@ -655,6 +656,7 @@ for i = 1: length(t_th2)
     pause(dt_2);
 end
 %% Joint 3 motion
+scara = scara.update();
 pre_xe = scara.end_effector(1);
 pre_ye = scara.end_effector(2);
 pre_ze = scara.end_effector(3);
@@ -687,6 +689,10 @@ for i = 1: length(t_d3)
     pause(dt_3);
 end
 %% Joint 4 motion
+scara = scara.update();
+pre_xe = scara.end_effector(1);
+pre_ye = scara.end_effector(2);
+pre_ze = scara.end_effector(3);
 for i = 1: length(t_th4)
     %% Draw robot
     if (th4_temp - pre_th4) > 0
@@ -716,7 +722,10 @@ for i = 1: length(t_th4)
     pause(dt_4);
 end
 
-
+pre_th1 = th1;
+pre_th2 = th2;
+pre_d3  = d3;
+pre_th4 = th4;
 % for i = 1:1000
 % scara = scara.set_joint_variable(1, th1);
 % scara = scara.set_joint_variable(2, th2);
@@ -906,11 +915,11 @@ p0(5) = deg2rad(str2double(get(handles.pitch_start, 'String')));
 p0(6) = deg2rad(str2double(get(handles.yaw_start, 'String')));
 
 joint = inverse_kinematics(scara.a, scara.alpha, scara.d, scara.theta, p0);
-
-pre_th1 = th1;
-pre_th2 = th2;
-pre_d3  = d3;
-pre_th4 = th4;
+% 
+% pre_th1 = th1;
+% pre_th2 = th2;
+% pre_d3  = d3;
+% pre_th4 = th4;
 
 th1 = joint(1);
 th2 = joint(2);
@@ -971,6 +980,3 @@ function Select_joint_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-
