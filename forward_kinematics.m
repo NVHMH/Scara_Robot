@@ -4,4 +4,4 @@ function T = forward_kinematics(n, a, alpha, d, theta)
         T(:,:,i+1) = T(:,:,i)*Denavit_Hartenberg_matrix(a(i), alpha(i), d(i), theta(i));
     end
 end
-
+   

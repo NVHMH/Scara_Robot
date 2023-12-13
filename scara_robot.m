@@ -121,12 +121,9 @@ function slider1_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 %%
-% global scara
-global float pre_th1;
-global float th1;
-% pre_th1 = th1;
-th1 = deg2rad(get(handles.slider1, 'Value'));
 
+global float th1;
+th1 = deg2rad(get(handles.slider1, 'Value'));
 handles.theta1.String = get(handles.slider1,'Value'); 
 
 % --- Executes during object creation, after setting all properties.
@@ -152,12 +149,8 @@ function slider2_Callback(hObject, eventdata, handles)
 
 % --- Executes during object creation, after setting all properties.
 %%
-% global scara
-global float pre_th2;
 global float th2;
-% pre_th2 = th2;
 th2 = deg2rad(get(handles.slider2, 'Value'));
-
 handles.theta2.String = get(handles.slider2,'Value'); 
 function slider2_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to slider2 (see GCBO)
@@ -180,10 +173,8 @@ function slider3_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 %%
-% global scara
-global float pre_d3;
+
 global float d3;
-% pre_d3 = d3;
 d3 = get(handles.slider3, 'Value');
 
 handles.d3.String = get(handles.slider3,'Value'); 
@@ -208,10 +199,8 @@ function slider4_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 %%
-% global scara
-global float pre_th4;
 global float th4;
-% pre_th4 = th4;
+
 th4 = deg2rad(get(handles.slider4, 'Value'));
 
 handles.theta4.String = get(handles.slider4,'Value'); 
@@ -237,10 +226,9 @@ function theta1_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of theta1 as a double
 %%
 % global scara
-global float pre_th1;
+
 global float th1;
 set(handles.slider1,'Value',str2double(handles.theta1.String));
-% pre_th1 = th1;
 th1 = deg2rad(get(handles.slider1, 'Value'));
 
 
@@ -265,11 +253,9 @@ function theta2_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of theta2 as a double
 
 %%
-% global scara
-global float pre_th2;
+
 global float th2;
 set(handles.slider2,'Value',str2double(handles.theta2.String));
-% pre_th2 = th2;
 th2 = deg2rad(get(handles.slider2, 'Value'));
 % --- Executes during object creation, after setting all properties.
 function theta2_CreateFcn(hObject, eventdata, handles)
@@ -293,11 +279,8 @@ function d3_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of d3 as text
 %        str2double(get(hObject,'String')) returns contents of d3 as a double
 %%
-% global scara
-global float pre_d3;
 global float d3;
 set(handles.slider3,'Value',str2double(handles.d3.String));
-% pre_d3 = d3;
 d3 = get(handles.slider3, 'Value');
 
 % --- Executes during object creation, after setting all properties.
@@ -322,11 +305,8 @@ function theta4_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of theta4 as text
 %        str2double(get(hObject,'String')) returns contents of theta4 as a double
 %%
-% global scara
-global float pre_th4;
 global float th4;
 set(handles.slider4,'Value',str2double(handles.theta4.String));
-% pre_th4 = th4;
 th4 = deg2rad(get(handles.slider4, 'Value'));
 
 
@@ -525,15 +505,20 @@ global float qmax_d3;
 global float qmax_th4;
 
 %% Trajectory joint
-qmax_th1 = abs(th1 - pre_th1)
-qmax_th2 = abs(th2 - pre_th2)
-qmax_d3 = abs(d3 - pre_d3)
-qmax_th4 = abs(th4 - pre_th4)
+qmax_th1 = abs(th1 - pre_th1);
+qmax_th2 = abs(th2 - pre_th2);
+qmax_d3 = abs(d3 - pre_d3);
+qmax_th4 = abs(th4 - pre_th4);
 
-[t_th1, q_th1, v_th1, a_th1] = LSPB_trajectory(qmax_th1, 7.85, 200);
-[t_th2, q_th2, v_th2, a_th2] = LSPB_trajectory(qmax_th2, 7.85, 200);
-[t_d3, q_d3, v_d3, a_d3] = LSPB_trajectory(qmax_d3, 2, 200);
-[t_th4, q_th4, v_th4, a_th4] = LSPB_trajectory(qmax_th4, 29.67, 200);
+if ( qmax_th1 == 0 || qmax_th2 == 0 || qmax_d3 == 0 || qmax_th4 == 0)
+    warndlg('One of qmax equal zero!', 'Warning');
+    return
+end 
+
+[t_th1, q_th1, v_th1, a_th1] = LSPB_trajectory(qmax_th1, 7.85, 200); % q < 17.65 (degree)
+[t_th2, q_th2, v_th2, a_th2] = LSPB_trajectory(qmax_th2, 7.85, 200); % q < 17.65 (degree)
+[t_d3, q_d3, v_d3, a_d3] = LSPB_trajectory(qmax_d3, 2, 200); % q < 20 (mm)
+[t_th4, q_th4, v_th4, a_th4] = LSPB_trajectory(qmax_th4, 29.67, 200); % q < 253.72 (degree)
 
 
 %clear 
@@ -716,9 +701,9 @@ for i = 1: length(t_th4)
     plot(handles.axes_ae, t_e(1:(len_t1+len_t2+len_t3+i)), a_e(1:(len_t1+len_t2+len_t3+i)), 'b-');
     
     %% Joint 
-    plot(handles.axes_q4, t_th1(1:i), q_th4(1:i), 'b-');
-    plot(handles.axes_v4, t_th1(1:i), v_th4(1:i), 'b-');
-    plot(handles.axes_a4, t_th1(1:i), a_th4(1:i), 'b-');
+    plot(handles.axes_q4, t_th4(1:i), q_th4(1:i), 'b-');
+    plot(handles.axes_v4, t_th4(1:i), v_th4(1:i), 'b-');
+    plot(handles.axes_a4, t_th4(1:i), a_th4(1:i), 'b-');
     pause(dt_4);
 end
 
@@ -726,6 +711,8 @@ pre_th1 = th1;
 pre_th2 = th2;
 pre_d3  = d3;
 pre_th4 = th4;
+
+pid_run(q_th1,q_th2, q_d3,q_th4,t_th1, t_th2, t_d3, t_th4);
 % for i = 1:1000
 % scara = scara.set_joint_variable(1, th1);
 % scara = scara.set_joint_variable(2, th2);
